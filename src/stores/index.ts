@@ -3,4 +3,4 @@ export { useAnimationStore, captureKeyframe } from './animationStore';
 export { useLayerStore, addGeoJSONLayer, DEFAULT_PAINT, DEFAULT_LAYOUT } from './layerStore';
 export { useDrawingStore, syncDrawInstance } from './drawingStore';
 export { useAnimatedLineStore, createArc, createGreatCircleArc } from './animatedLineStore';
-export { useUIStore } from './uiStore';
+export { useUIStore, MAP_STYLES, getMapStyleUrl } from './uiStore';

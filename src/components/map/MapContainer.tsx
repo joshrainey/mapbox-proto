@@ -1,19 +1,133 @@
-import { forwardRef, useRef, useEffect } from 'react';
+import { forwardRef, useRef, useEffect, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { useMapStore, useUIStore } from '../../stores';
+import { useMapStore, useUIStore, useDrawingStore, syncDrawInstance, getMapStyleUrl } from '../../stores';
 
 interface MapContainerProps {
   accessToken: string;
 }
 
+// Custom draw styles
+const DRAW_STYLES = [
+  // Point styles
+  {
+    id: 'gl-draw-point',
+    type: 'circle',
+    filter: ['all', ['==', '$type', 'Point'], ['!=', 'meta', 'midpoint']],
+    paint: {
+      'circle-radius': 8,
+      'circle-color': '#8b5cf6',
+      'circle-stroke-color': '#ffffff',
+      'circle-stroke-width': 2,
+    },
+  },
+  // Line styles
+  {
+    id: 'gl-draw-line',
+    type: 'line',
+    filter: ['all', ['==', '$type', 'LineString']],
+    paint: {
+      'line-color': '#ef4444',
+      'line-width': 3,
+    },
+    layout: {
+      'line-cap': 'round',
+      'line-join': 'round',
+    },
+  },
+  // Polygon fill
+  {
+    id: 'gl-draw-polygon-fill',
+    type: 'fill',
+    filter: ['all', ['==', '$type', 'Polygon']],
+    paint: {
+      'fill-color': '#3b82f6',
+      'fill-opacity': 0.3,
+    },
+  },
+  // Polygon outline
+  {
+    id: 'gl-draw-polygon-stroke',
+    type: 'line',
+    filter: ['all', ['==', '$type', 'Polygon']],
+    paint: {
+      'line-color': '#3b82f6',
+      'line-width': 2,
+    },
+  },
+  // Vertex points
+  {
+    id: 'gl-draw-point-vertex',
+    type: 'circle',
+    filter: ['all', ['==', 'meta', 'vertex']],
+    paint: {
+      'circle-radius': 5,
+      'circle-color': '#ffffff',
+      'circle-stroke-color': '#3b82f6',
+      'circle-stroke-width': 2,
+    },
+  },
+  // Midpoints
+  {
+    id: 'gl-draw-point-midpoint',
+    type: 'circle',
+    filter: ['all', ['==', 'meta', 'midpoint']],
+    paint: {
+      'circle-radius': 4,
+      'circle-color': '#3b82f6',
+      'circle-opacity': 0.5,
+    },
+  },
+];
+
 export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
   ({ accessToken }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<mapboxgl.Map | null>(null);
+    const drawRef = useRef<MapboxDraw | null>(null);
     const setMap = useMapStore((s) => s.setMap);
-    const theme = useUIStore((s) => s.theme);
+    const mapStyle = useUIStore((s) => s.mapStyle);
+    const drawingMode = useDrawingStore((s) => s.mode);
 
+    // Add terrain and sky to the map
+    const addTerrainAndSky = useCallback((map: mapboxgl.Map) => {
+      // Only add terrain source if it doesn't exist
+      if (!map.getSource('mapbox-dem')) {
+        map.addSource('mapbox-dem', {
+          type: 'raster-dem',
+          url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+          tileSize: 512,
+          maxzoom: 14,
+        });
+      }
+
+      try {
+        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+      } catch (e) {
+        // Terrain might not be supported on some styles
+      }
+
+      // Add sky layer if it doesn't exist
+      if (!map.getLayer('sky')) {
+        try {
+          map.addLayer({
+            id: 'sky',
+            type: 'sky',
+            paint: {
+              'sky-type': 'atmosphere',
+              'sky-atmosphere-sun': [0.0, 90.0],
+              'sky-atmosphere-sun-intensity': 15,
+            },
+          });
+        } catch (e) {
+          // Sky might not be supported
+        }
+      }
+    }, []);
+
+    // Initialize map
     useEffect(() => {
       if (!containerRef.current || !accessToken || mapRef.current) return;
 
@@ -21,16 +135,13 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
 
       const map = new mapboxgl.Map({
         container: containerRef.current,
-        style:
-          theme === 'dark'
-            ? 'mapbox://styles/mapbox/dark-v11'
-            : 'mapbox://styles/mapbox/light-v11',
+        style: getMapStyleUrl(mapStyle),
         center: [-74.006, 40.7128],
         zoom: 12,
         pitch: 0,
         bearing: 0,
         attributionControl: false,
-        preserveDrawingBuffer: true, // For screenshots
+        preserveDrawingBuffer: true,
       });
 
       // Add controls
@@ -44,48 +155,81 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
         'bottom-right'
       );
 
+      // Initialize drawing tools
+      const draw = new MapboxDraw({
+        displayControlsDefault: false,
+        controls: {},
+        defaultMode: 'simple_select',
+        styles: DRAW_STYLES as any,
+      });
+
+      map.addControl(draw);
+      drawRef.current = draw;
+
       map.on('load', () => {
         mapRef.current = map;
         setMap(map);
+        addTerrainAndSky(map);
 
-        // Add 3D terrain if available
-        map.addSource('mapbox-dem', {
-          type: 'raster-dem',
-          url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-          tileSize: 512,
-          maxzoom: 14,
-        });
-
-        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-
-        // Add sky layer for 3D effect
-        map.addLayer({
-          id: 'sky',
-          type: 'sky',
-          paint: {
-            'sky-type': 'atmosphere',
-            'sky-atmosphere-sun': [0.0, 90.0],
-            'sky-atmosphere-sun-intensity': 15,
-          },
-        });
+        // Set up draw sync handlers
+        const handlers = syncDrawInstance(draw);
+        map.on('draw.create', handlers.onDrawCreate);
+        map.on('draw.update', handlers.onDrawUpdate);
+        map.on('draw.delete', handlers.onDrawDelete);
+        map.on('draw.selectionchange', handlers.onDrawSelectionChange);
       });
 
       return () => {
         map.remove();
         mapRef.current = null;
+        drawRef.current = null;
       };
-    }, [accessToken, setMap]);
+    }, [accessToken, setMap, addTerrainAndSky]);
 
-    // Update map style when theme changes
+    // Update map style when mapStyle changes
     useEffect(() => {
-      if (mapRef.current) {
-        const style =
-          theme === 'dark'
-            ? 'mapbox://styles/mapbox/dark-v11'
-            : 'mapbox://styles/mapbox/light-v11';
-        mapRef.current.setStyle(style);
+      const map = mapRef.current;
+      if (!map) return;
+
+      const styleUrl = getMapStyleUrl(mapStyle);
+
+      // Store current draw features before style change
+      const draw = drawRef.current;
+      let drawnFeatures: GeoJSON.FeatureCollection | null = null;
+      if (draw) {
+        drawnFeatures = draw.getAll();
       }
-    }, [theme]);
+
+      map.setStyle(styleUrl);
+
+      // Re-add terrain, sky, and draw features after style loads
+      map.once('style.load', () => {
+        addTerrainAndSky(map);
+
+        // Re-add drawn features
+        if (draw && drawnFeatures && drawnFeatures.features.length > 0) {
+          drawnFeatures.features.forEach((feature) => {
+            try {
+              draw.add(feature);
+            } catch (e) {
+              console.warn('Could not restore draw feature:', e);
+            }
+          });
+        }
+      });
+    }, [mapStyle, addTerrainAndSky]);
+
+    // Sync drawing mode
+    useEffect(() => {
+      const draw = drawRef.current;
+      if (draw && drawingMode) {
+        try {
+          draw.changeMode(drawingMode as any);
+        } catch (e) {
+          console.warn('Draw mode not available:', drawingMode);
+        }
+      }
+    }, [drawingMode]);
 
     return (
       <div

@@ -31,6 +31,7 @@ import { MarkerGallery } from './components/panels/MarkerGallery';
 import { LineAnimator } from './components/panels/LineAnimator';
 import { CoordinateDisplay } from './components/shared/CoordinateDisplay';
 import { FPSDisplay } from './components/shared/FPSDisplay';
+import { MapStyleSelector } from './components/shared/MapStyleSelector';
 
 import { useUIStore, useMapStore } from './stores';
 import { useKeyboardShortcuts, useMousePosition, useFPS } from './hooks/useMap';
@@ -121,12 +122,14 @@ function App() {
       <div className={`h-12 border-b flex items-center justify-between px-4 ${
         theme === 'dark' ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'
       }`}>
-        {/* Left: Logo and panel toggles */}
+        {/* Left: Logo, map style, and panel toggles */}
         <div className="flex items-center gap-4">
           <span className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-zinc-900'}`}>
             Proto
           </span>
-          <div className="h-6 w-px bg-zinc-700" />
+          <div className={`h-6 w-px ${theme === 'dark' ? 'bg-zinc-700' : 'bg-zinc-300'}`} />
+          <MapStyleSelector />
+          <div className={`h-6 w-px ${theme === 'dark' ? 'bg-zinc-700' : 'bg-zinc-300'}`} />
           <div className="flex items-center gap-1">
             {panelConfig.map(({ key, icon: Icon, label }) => (
               <button

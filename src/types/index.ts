@@ -158,9 +158,31 @@ export interface PanelState {
   inspector: boolean;
 }
 
+// ============================================
+// Map Style Types
+// ============================================
+
+export type MapStyleId =
+  | 'streets'
+  | 'outdoors'
+  | 'light'
+  | 'dark'
+  | 'satellite'
+  | 'satellite-streets'
+  | 'navigation-day'
+  | 'navigation-night';
+
+export interface MapStyle {
+  id: MapStyleId;
+  name: string;
+  url: string;
+  preview?: string;
+}
+
 export interface UIState {
   panels: PanelState;
   theme: 'dark' | 'light';
+  mapStyle: MapStyleId;
   showGrid: boolean;
   showCoordinates: boolean;
   showFPS: boolean;
