@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { UIState, PanelState, MapStyleId, MapStyle } from '../types';
 
-// Available map styles
+// Built-in map styles
 export const MAP_STYLES: MapStyle[] = [
   { id: 'streets', name: 'Streets', url: 'mapbox://styles/mapbox/streets-v12' },
   { id: 'outdoors', name: 'Outdoors', url: 'mapbox://styles/mapbox/outdoors-v12' },
@@ -14,15 +14,28 @@ export const MAP_STYLES: MapStyle[] = [
   { id: 'navigation-night', name: 'Navigation Night', url: 'mapbox://styles/mapbox/navigation-night-v1' },
 ];
 
-export const getMapStyleUrl = (styleId: MapStyleId): string => {
-  const style = MAP_STYLES.find((s) => s.id === styleId);
-  return style?.url || MAP_STYLES[3].url; // Default to dark
+export const getMapStyleUrl = (styleId: MapStyleId, customStyles: MapStyle[] = []): string => {
+  // Check built-in styles first
+  const builtIn = MAP_STYLES.find((s) => s.id === styleId);
+  if (builtIn) return builtIn.url;
+
+  // Check custom styles
+  const custom = customStyles.find((s) => s.id === styleId);
+  if (custom) return custom.url;
+
+  return MAP_STYLES[3].url; // Default to dark
+};
+
+export const getAllStyles = (customStyles: MapStyle[]): MapStyle[] => {
+  return [...MAP_STYLES, ...customStyles];
 };
 
 interface UIStore extends UIState {
   togglePanel: (panel: keyof PanelState) => void;
   setTheme: (theme: 'dark' | 'light') => void;
   setMapStyle: (style: MapStyleId) => void;
+  addCustomStyle: (name: string, url: string) => MapStyleId;
+  removeCustomStyle: (id: MapStyleId) => void;
   toggleGrid: () => void;
   toggleCoordinates: () => void;
   toggleFPS: () => void;
@@ -31,7 +44,7 @@ interface UIStore extends UIState {
 
 export const useUIStore = create<UIStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       panels: {
         camera: true,
         physics: true,
@@ -45,6 +58,7 @@ export const useUIStore = create<UIStore>()(
       },
       theme: 'dark',
       mapStyle: 'dark',
+      customStyles: [],
       showGrid: false,
       showCoordinates: true,
       showFPS: false,
@@ -66,6 +80,25 @@ export const useUIStore = create<UIStore>()(
 
       setMapStyle: (mapStyle: MapStyleId) => {
         set({ mapStyle });
+      },
+
+      addCustomStyle: (name: string, url: string): MapStyleId => {
+        const id = `custom-${Date.now()}` as MapStyleId;
+        const newStyle: MapStyle = { id, name, url, isCustom: true };
+        set((state) => ({
+          customStyles: [...state.customStyles, newStyle],
+          mapStyle: id, // Switch to the new style
+        }));
+        return id;
+      },
+
+      removeCustomStyle: (id: MapStyleId) => {
+        set((state) => {
+          const newCustomStyles = state.customStyles.filter((s) => s.id !== id);
+          // If we're removing the current style, switch to dark
+          const newMapStyle = state.mapStyle === id ? 'dark' : state.mapStyle;
+          return { customStyles: newCustomStyles, mapStyle: newMapStyle };
+        });
       },
 
       toggleGrid: () => {
@@ -90,6 +123,7 @@ export const useUIStore = create<UIStore>()(
         panels: state.panels,
         theme: state.theme,
         mapStyle: state.mapStyle,
+        customStyles: state.customStyles,
         showGrid: state.showGrid,
         showCoordinates: state.showCoordinates,
         showFPS: state.showFPS,

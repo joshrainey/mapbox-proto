@@ -89,6 +89,7 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
     const drawRef = useRef<MapboxDraw | null>(null);
     const setMap = useMapStore((s) => s.setMap);
     const mapStyle = useUIStore((s) => s.mapStyle);
+    const customStyles = useUIStore((s) => s.customStyles);
     const drawingMode = useDrawingStore((s) => s.mode);
 
     // Add terrain and sky to the map
@@ -135,7 +136,7 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
 
       const map = new mapboxgl.Map({
         container: containerRef.current,
-        style: getMapStyleUrl(mapStyle),
+        style: getMapStyleUrl(mapStyle, customStyles),
         center: [-74.006, 40.7128],
         zoom: 12,
         pitch: 0,
@@ -191,7 +192,7 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
       const map = mapRef.current;
       if (!map) return;
 
-      const styleUrl = getMapStyleUrl(mapStyle);
+      const styleUrl = getMapStyleUrl(mapStyle, customStyles);
 
       // Store current draw features before style change
       const draw = drawRef.current;
@@ -217,7 +218,7 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
           });
         }
       });
-    }, [mapStyle, addTerrainAndSky]);
+    }, [mapStyle, customStyles, addTerrainAndSky]);
 
     // Sync drawing mode
     useEffect(() => {

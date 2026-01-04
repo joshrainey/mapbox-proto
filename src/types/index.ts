@@ -162,7 +162,7 @@ export interface PanelState {
 // Map Style Types
 // ============================================
 
-export type MapStyleId =
+export type BuiltInStyleId =
   | 'streets'
   | 'outdoors'
   | 'light'
@@ -172,17 +172,21 @@ export type MapStyleId =
   | 'navigation-day'
   | 'navigation-night';
 
+// MapStyleId can be a built-in style or a custom style ID (prefixed with 'custom-')
+export type MapStyleId = BuiltInStyleId | `custom-${string}`;
+
 export interface MapStyle {
   id: MapStyleId;
   name: string;
   url: string;
-  preview?: string;
+  isCustom?: boolean;
 }
 
 export interface UIState {
   panels: PanelState;
   theme: 'dark' | 'light';
   mapStyle: MapStyleId;
+  customStyles: MapStyle[];
   showGrid: boolean;
   showCoordinates: boolean;
   showFPS: boolean;
