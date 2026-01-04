@@ -135,7 +135,7 @@ function App() {
               <button
                 key={key}
                 onClick={() => togglePanel(key)}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm transition-colors ${
                   panels[key]
                     ? theme === 'dark'
                       ? 'bg-violet-600 text-white'
@@ -146,55 +146,59 @@ function App() {
                 }`}
                 title={`${label} (Ctrl+${panelConfig.findIndex(p => p.key === key) + 1})`}
               >
-                <Icon size={18} />
+                <Icon size={16} />
+                <span className="font-medium">{label}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Right: View options */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <button
             onClick={toggleCoordinates}
-            className={`p-2 rounded-lg transition-colors ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm transition-colors ${
               showCoordinates
                 ? theme === 'dark'
                   ? 'bg-zinc-800 text-white'
                   : 'bg-zinc-200 text-zinc-900'
                 : theme === 'dark'
-                ? 'text-zinc-500 hover:text-white'
-                : 'text-zinc-400 hover:text-zinc-900'
+                ? 'text-zinc-500 hover:text-white hover:bg-zinc-800'
+                : 'text-zinc-400 hover:text-zinc-900 hover:bg-zinc-200'
             }`}
             title="Toggle coordinates"
           >
-            <FiCrosshair size={18} />
+            <FiCrosshair size={16} />
+            <span className="font-medium">Coords</span>
           </button>
           <button
             onClick={toggleFPS}
-            className={`p-2 rounded-lg transition-colors ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm transition-colors ${
               showFPS
                 ? theme === 'dark'
                   ? 'bg-zinc-800 text-white'
                   : 'bg-zinc-200 text-zinc-900'
                 : theme === 'dark'
-                ? 'text-zinc-500 hover:text-white'
-                : 'text-zinc-400 hover:text-zinc-900'
+                ? 'text-zinc-500 hover:text-white hover:bg-zinc-800'
+                : 'text-zinc-400 hover:text-zinc-900 hover:bg-zinc-200'
             }`}
             title="Toggle FPS"
           >
-            <FiActivity size={18} />
+            <FiActivity size={16} />
+            <span className="font-medium">FPS</span>
           </button>
-          <div className="h-6 w-px bg-zinc-700 mx-1" />
+          <div className={`h-6 w-px mx-1 ${theme === 'dark' ? 'bg-zinc-700' : 'bg-zinc-300'}`} />
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className={`p-2 rounded-lg transition-colors ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm transition-colors ${
               theme === 'dark'
                 ? 'text-zinc-400 hover:text-white hover:bg-zinc-800'
                 : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200'
             }`}
             title="Toggle theme"
           >
-            {theme === 'dark' ? <FiSun size={18} /> : <FiMoon size={18} />}
+            {theme === 'dark' ? <FiSun size={16} /> : <FiMoon size={16} />}
+            <span className="font-medium">{theme === 'dark' ? 'Light' : 'Dark'}</span>
           </button>
         </div>
       </div>
