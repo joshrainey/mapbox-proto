@@ -1,0 +1,421 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================================
+   Base Styles
+   =================================== */
+
+@layer base {
+  * {
+    @apply border-zinc-800;
+  }
+
+  html {
+    @apply antialiased;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-zinc-950 text-zinc-100;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-violet-500/30 text-white;
+  }
+
+  /* Focus styles */
+  :focus-visible {
+    @apply outline-none ring-2 ring-violet-500 ring-offset-2 ring-offset-zinc-900;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-zinc-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-zinc-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-zinc-600;
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #3f3f46 #18181b;
+  }
+}
+
+/* ===================================
+   Component Styles
+   =================================== */
+
+@layer components {
+  /* Panel styles */
+  .panel {
+    @apply bg-zinc-900 border-zinc-800;
+  }
+
+  .panel-header {
+    @apply px-4 py-3 border-b border-zinc-800 flex items-center justify-between;
+  }
+
+  .panel-content {
+    @apply p-4;
+  }
+
+  /* Input styles */
+  .input {
+    @apply w-full px-3 py-2 text-sm bg-zinc-800 border border-zinc-700 rounded-lg;
+    @apply text-white placeholder-zinc-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent;
+    @apply transition-colors;
+  }
+
+  .input-sm {
+    @apply px-2 py-1.5 text-xs;
+  }
+
+  /* Button styles */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2;
+    @apply text-sm font-medium rounded-lg;
+    @apply transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900;
+  }
+
+  .btn-primary {
+    @apply bg-violet-600 text-white hover:bg-violet-500;
+    @apply focus:ring-violet-500;
+  }
+
+  .btn-secondary {
+    @apply bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white;
+    @apply focus:ring-zinc-500;
+  }
+
+  .btn-ghost {
+    @apply text-zinc-400 hover:text-white hover:bg-zinc-800;
+    @apply focus:ring-zinc-500;
+  }
+
+  .btn-danger {
+    @apply text-red-400 hover:bg-red-500/20;
+    @apply focus:ring-red-500;
+  }
+
+  .btn-sm {
+    @apply px-2.5 py-1.5 text-xs;
+  }
+
+  .btn-icon {
+    @apply p-2;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full;
+  }
+
+  .badge-default {
+    @apply bg-zinc-800 text-zinc-300;
+  }
+
+  .badge-primary {
+    @apply bg-violet-500/20 text-violet-400;
+  }
+
+  .badge-success {
+    @apply bg-green-500/20 text-green-400;
+  }
+
+  .badge-warning {
+    @apply bg-amber-500/20 text-amber-400;
+  }
+
+  .badge-danger {
+    @apply bg-red-500/20 text-red-400;
+  }
+
+  /* Slider styles */
+  .slider {
+    @apply w-full h-1.5 rounded-full appearance-none cursor-pointer;
+    @apply bg-zinc-700;
+  }
+
+  .slider::-webkit-slider-thumb {
+    @apply appearance-none w-3.5 h-3.5 rounded-full;
+    @apply bg-violet-500 cursor-pointer;
+    @apply hover:bg-violet-400;
+    @apply transition-colors;
+  }
+
+  .slider::-moz-range-thumb {
+    @apply w-3.5 h-3.5 rounded-full border-0;
+    @apply bg-violet-500 cursor-pointer;
+    @apply hover:bg-violet-400;
+    @apply transition-colors;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    @apply absolute z-50 px-2 py-1 text-xs text-white bg-zinc-900 rounded shadow-lg;
+    @apply opacity-0 invisible transition-opacity;
+    @apply pointer-events-none;
+  }
+
+  .tooltip-visible {
+    @apply opacity-100 visible;
+  }
+
+  /* Card */
+  .card {
+    @apply bg-zinc-900 border border-zinc-800 rounded-xl;
+  }
+
+  /* Divider */
+  .divider {
+    @apply h-px w-full bg-zinc-800;
+  }
+
+  .divider-vertical {
+    @apply w-px h-full bg-zinc-800;
+  }
+}
+
+/* ===================================
+   Mapbox Overrides
+   =================================== */
+
+.mapboxgl-map {
+  font-family: 'Inter', sans-serif;
+}
+
+.mapboxgl-ctrl-group {
+  @apply bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden shadow-lg;
+}
+
+.mapboxgl-ctrl-group button {
+  @apply bg-zinc-900 border-zinc-800;
+}
+
+.mapboxgl-ctrl-group button:hover {
+  @apply bg-zinc-800;
+}
+
+.mapboxgl-ctrl-group button + button {
+  @apply border-t border-zinc-800;
+}
+
+.mapboxgl-ctrl-icon {
+  filter: invert(1);
+}
+
+.mapboxgl-ctrl-scale {
+  @apply bg-zinc-900/80 text-zinc-300 border-zinc-700 text-xs font-mono backdrop-blur;
+}
+
+.mapboxgl-ctrl-attrib {
+  @apply bg-zinc-900/80 text-zinc-500 backdrop-blur;
+}
+
+.mapboxgl-ctrl-attrib a {
+  @apply text-zinc-400 hover:text-white;
+}
+
+.mapboxgl-popup-content {
+  @apply bg-zinc-900 text-white border border-zinc-800 rounded-lg shadow-xl p-3;
+}
+
+.mapboxgl-popup-tip {
+  @apply border-t-zinc-900;
+}
+
+.mapboxgl-popup-close-button {
+  @apply text-zinc-400 hover:text-white text-lg p-1;
+}
+
+/* Draw controls */
+.mapbox-gl-draw_ctrl-draw-btn {
+  @apply bg-zinc-900 border-zinc-800;
+}
+
+.mapbox-gl-draw_ctrl-draw-btn:hover {
+  @apply bg-zinc-800;
+}
+
+.mapbox-gl-draw_ctrl-draw-btn.active {
+  @apply bg-violet-600;
+}
+
+/* ===================================
+   Monaco Editor Overrides
+   =================================== */
+
+.monaco-editor {
+  @apply rounded-lg overflow-hidden;
+}
+
+.monaco-editor .margin {
+  @apply bg-zinc-900;
+}
+
+.monaco-editor .monaco-editor-background {
+  @apply bg-zinc-900;
+}
+
+/* ===================================
+   Panel Resize Handle
+   =================================== */
+
+[data-panel-group-direction="horizontal"] > [data-panel-resize-handle-id] {
+  @apply w-1 bg-zinc-800 hover:bg-violet-600 transition-colors;
+}
+
+[data-panel-group-direction="vertical"] > [data-panel-resize-handle-id] {
+  @apply h-1 bg-zinc-800 hover:bg-violet-600 transition-colors;
+}
+
+/* ===================================
+   Animations
+   =================================== */
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.33);
+  }
+  40%, 50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+/* ===================================
+   Utility Classes
+   =================================== */
+
+.glass {
+  @apply bg-zinc-900/80 backdrop-blur-md border border-zinc-800/50;
+}
+
+.glass-dark {
+  @apply bg-black/60 backdrop-blur-md border border-zinc-700/30;
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent;
+}
+
+/* Hide number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Custom range input styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  background: transparent;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  @apply h-1.5 rounded-full bg-zinc-700;
+}
+
+input[type="range"]::-moz-range-track {
+  @apply h-1.5 rounded-full bg-zinc-700;
+}
+
+/* Color input styling */
+input[type="color"] {
+  -webkit-appearance: none;
+  border: none;
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  @apply rounded border-0;
+}
