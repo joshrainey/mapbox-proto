@@ -247,7 +247,9 @@ export const CameraPanel = () => {
                     ? isDark
                       ? 'bg-zinc-800 text-white hover:bg-zinc-700'
                       : 'bg-zinc-200 text-zinc-900 hover:bg-zinc-300'
-                    : 'bg-zinc-800/50 text-zinc-600 cursor-not-allowed'
+                    : isDark
+                    ? 'bg-zinc-800/50 text-zinc-600 cursor-not-allowed'
+                    : 'bg-zinc-200/50 text-zinc-400 cursor-not-allowed'
                 }`}
               >
                 <FiTarget size={14} />

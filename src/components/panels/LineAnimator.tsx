@@ -861,7 +861,9 @@ animate();
                   ? isDark
                     ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                     : 'bg-zinc-200 text-zinc-700 hover:bg-zinc-300'
-                  : 'opacity-50 cursor-not-allowed bg-zinc-800 text-zinc-600'
+                  : isDark
+                  ? 'opacity-50 cursor-not-allowed bg-zinc-800 text-zinc-600'
+                  : 'opacity-50 cursor-not-allowed bg-zinc-200 text-zinc-400'
               }`}
             >
               <FiTrash2 size={16} />
@@ -1005,7 +1007,9 @@ animate();
                   ? isDark
                     ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                     : 'bg-zinc-200 text-zinc-700 hover:bg-zinc-300'
-                  : 'opacity-50 cursor-not-allowed bg-zinc-800 text-zinc-600'
+                  : isDark
+                  ? 'opacity-50 cursor-not-allowed bg-zinc-800 text-zinc-600'
+                  : 'opacity-50 cursor-not-allowed bg-zinc-200 text-zinc-400'
               }`}
             >
               {copied ? <FiCheck size={16} className="text-green-500" /> : <FiCopy size={16} />}

@@ -419,7 +419,7 @@ export const PhysicsPanel = () => {
       >
         <div className="px-4 pb-4 space-y-4">
           {/* Mode Selector */}
-          <div className="flex gap-1 p-1 rounded-lg bg-zinc-800">
+          <div className={`flex gap-1 p-1 rounded-lg ${isDark ? 'bg-zinc-800' : 'bg-zinc-200'}`}>
             {(['spring', 'easing', 'bezier'] as const).map((m) => (
               <button
                 key={m}
