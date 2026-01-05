@@ -29,6 +29,7 @@ import { CodePanel } from './components/panels/CodePanel';
 import { PhysicsPanel } from './components/panels/PhysicsPanel';
 import { MarkerGallery } from './components/panels/MarkerGallery';
 import { LineAnimator } from './components/panels/LineAnimator';
+import { EnvironmentPanel } from './components/panels/EnvironmentPanel';
 import { CoordinateDisplay } from './components/shared/CoordinateDisplay';
 import { FPSDisplay } from './components/shared/FPSDisplay';
 import { MapStyleSelector } from './components/shared/MapStyleSelector';
@@ -56,6 +57,7 @@ function App() {
   const panelConfig = [
     { key: 'camera', icon: FiCamera, label: 'Camera' },
     { key: 'physics', icon: FiZap, label: 'Physics' },
+    { key: 'environment', icon: FiSun, label: 'Environment' },
     { key: 'timeline', icon: FiPlay, label: 'Timeline' },
     { key: 'layers', icon: FiLayers, label: 'Layers' },
     { key: 'markers', icon: FiMapPin, label: 'Markers' },
@@ -208,7 +210,7 @@ function App() {
         <PanelGroup direction="horizontal" className="flex-1">
           {/* Left Panels */}
           <AnimatePresence>
-            {(panels.camera || panels.physics || panels.layers || panels.markers || panels.lines || panels.drawing) && (
+            {(panels.camera || panels.physics || panels.environment || panels.layers || panels.markers || panels.lines || panels.drawing) && (
               <>
                 <Panel
                   defaultSize={20}
@@ -219,6 +221,7 @@ function App() {
                   <div className="h-full overflow-y-auto">
                     {panels.camera && <CameraPanel />}
                     {panels.physics && <PhysicsPanel />}
+                    {panels.environment && <EnvironmentPanel />}
                     {panels.layers && <LayersPanel />}
                     {panels.markers && <MarkerGallery />}
                     {panels.lines && <LineAnimator />}

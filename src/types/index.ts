@@ -154,6 +154,7 @@ export interface PanelState {
   markers: boolean;
   lines: boolean;
   drawing: boolean;
+  environment: boolean;
   code: boolean;
   inspector: boolean;
 }
@@ -239,6 +240,51 @@ export interface ExportOptions {
 }
 
 // ============================================
+// Environment & Lighting Types
+// ============================================
+
+export interface AmbientLight {
+  color: string;
+  intensity: number;
+}
+
+export interface DirectionalLight {
+  color: string;
+  intensity: number;
+  direction: [number, number]; // [azimuth, polar] in degrees
+  castShadows: boolean;
+  shadowIntensity: number;
+}
+
+export interface Atmosphere {
+  color: string;
+  highColor: string;
+  horizonBlend: number;
+  spaceColor: string;
+  starIntensity: number;
+}
+
+export interface Fog {
+  color: string;
+  highColor: string;
+  horizonBlend: number;
+  range: [number, number]; // [start, end] in meters
+  verticalRange: [number, number];
+}
+
+export type TimeOfDay = 'dawn' | 'morning' | 'noon' | 'afternoon' | 'dusk' | 'night';
+
+export interface EnvironmentState {
+  enabled: boolean;
+  ambientLight: AmbientLight;
+  directionalLight: DirectionalLight;
+  atmosphere: Atmosphere;
+  fog: Fog;
+  fogEnabled: boolean;
+  timeOfDay: TimeOfDay | 'custom';
+}
+
+// ============================================
 // Store Types
 // ============================================
 
@@ -316,11 +362,23 @@ export interface DrawingStore {
 
 export interface AnimatedLineStore {
   lines: AnimatedLine[];
-  
+
   addLine: (line: Omit<AnimatedLine, 'id' | 'progress'>) => string;
   updateLine: (id: string, updates: Partial<AnimatedLine>) => void;
   removeLine: (id: string) => void;
   setProgress: (id: string, progress: number) => void;
   playLine: (id: string) => void;
   stopLine: (id: string) => void;
+}
+
+export interface EnvironmentStore extends EnvironmentState {
+  setEnabled: (enabled: boolean) => void;
+  setAmbientLight: (light: Partial<AmbientLight>) => void;
+  setDirectionalLight: (light: Partial<DirectionalLight>) => void;
+  setAtmosphere: (atmosphere: Partial<Atmosphere>) => void;
+  setFog: (fog: Partial<Fog>) => void;
+  setFogEnabled: (enabled: boolean) => void;
+  setTimeOfDay: (time: TimeOfDay | 'custom') => void;
+  applyPreset: (time: TimeOfDay) => void;
+  reset: () => void;
 }

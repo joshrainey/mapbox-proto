@@ -53,6 +53,7 @@ export const useUIStore = create<UIStore>()(
         markers: true,
         lines: true,
         drawing: true,
+        environment: false,
         code: true,
         inspector: false,
       },

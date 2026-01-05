@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { useMapStore, useUIStore, useDrawingStore, syncDrawInstance, getMapStyleUrl } from '../../stores';
+import { useMapStore, useUIStore, useDrawingStore, useEnvironmentStore, syncDrawInstance, getMapStyleUrl } from '../../stores';
 
 interface MapContainerProps {
   accessToken: string;
@@ -91,6 +91,7 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
     const mapStyle = useUIStore((s) => s.mapStyle);
     const customStyles = useUIStore((s) => s.customStyles);
     const drawingMode = useDrawingStore((s) => s.mode);
+    const environment = useEnvironmentStore();
 
     // Add terrain and sky to the map
     const addTerrainAndSky = useCallback((map: mapboxgl.Map) => {
@@ -231,6 +232,74 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
         }
       }
     }, [drawingMode]);
+
+    // Apply environment settings (lighting, fog, atmosphere)
+    useEffect(() => {
+      const map = mapRef.current;
+      if (!map || !map.isStyleLoaded()) return;
+
+      try {
+        if (environment.enabled) {
+          // Apply lights configuration using Mapbox GL v3 API
+          // Type cast needed as TypeScript definitions may not be fully up to date
+          const lights = [
+            {
+              id: 'ambient',
+              type: 'ambient',
+              properties: {
+                color: environment.ambientLight.color,
+                intensity: environment.ambientLight.intensity,
+              },
+            },
+            {
+              id: 'directional',
+              type: 'directional',
+              properties: {
+                color: environment.directionalLight.color,
+                intensity: environment.directionalLight.intensity,
+                direction: environment.directionalLight.direction,
+                'cast-shadows': environment.directionalLight.castShadows,
+                'shadow-intensity': environment.directionalLight.shadowIntensity,
+              },
+            },
+          ] as any;
+          (map as any).setLights(lights);
+
+          // Apply fog settings
+          if (environment.fogEnabled) {
+            map.setFog({
+              color: environment.fog.color,
+              'high-color': environment.fog.highColor,
+              'horizon-blend': environment.fog.horizonBlend,
+              range: environment.fog.range,
+              'vertical-range': environment.fog.verticalRange,
+            });
+          } else {
+            map.setFog(null);
+          }
+
+          // Update sky layer if it exists
+          if (map.getLayer('sky')) {
+            map.setPaintProperty('sky', 'sky-atmosphere-color', environment.atmosphere.color);
+            map.setPaintProperty('sky', 'sky-atmosphere-halo-color', environment.atmosphere.highColor);
+            map.setPaintProperty('sky', 'sky-atmosphere-sun-intensity', environment.atmosphere.starIntensity * 15);
+          }
+        } else {
+          // Reset to defaults when disabled
+          (map as any).setLights(undefined);
+          map.setFog(null);
+        }
+      } catch (e) {
+        console.warn('Could not apply environment settings:', e);
+      }
+    }, [
+      environment.enabled,
+      environment.ambientLight,
+      environment.directionalLight,
+      environment.atmosphere,
+      environment.fog,
+      environment.fogEnabled,
+    ]);
 
     return (
       <div
