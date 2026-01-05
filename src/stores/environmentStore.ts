@@ -5,35 +5,30 @@ import type {
   EnvironmentState,
   AmbientLight,
   DirectionalLight,
-  Atmosphere,
   Fog,
   TimeOfDay,
 } from '../types';
 
-// Time of day presets
+// Time of day presets with Mapbox GL v3 compatible values
+// Fog includes atmosphere properties (space-color, star-intensity) per Mapbox spec
 export const TIME_PRESETS: Record<TimeOfDay, Omit<EnvironmentState, 'enabled' | 'timeOfDay'>> = {
   dawn: {
     ambientLight: { color: '#ffd4a3', intensity: 0.4 },
     directionalLight: {
       color: '#ff8c42',
       intensity: 0.6,
-      direction: [80, 30],
+      direction: [80, 15], // Sun rising from east, low angle
       castShadows: true,
       shadowIntensity: 0.3,
     },
-    atmosphere: {
-      color: '#ffa366',
-      highColor: '#ff7f50',
-      horizonBlend: 0.1,
-      spaceColor: '#1a1a2e',
-      starIntensity: 0.1,
-    },
     fog: {
       color: '#ffdab3',
-      highColor: '#ffb366',
-      horizonBlend: 0.08,
+      highColor: '#ff7f50',
+      horizonBlend: 0.1,
       range: [0.5, 10],
       verticalRange: [0, 500],
+      spaceColor: '#1a1a2e',
+      starIntensity: 0.1,
     },
     fogEnabled: true,
   },
@@ -42,23 +37,18 @@ export const TIME_PRESETS: Record<TimeOfDay, Omit<EnvironmentState, 'enabled' | 
     directionalLight: {
       color: '#fff5e6',
       intensity: 0.8,
-      direction: [60, 45],
+      direction: [120, 45], // Sun from southeast
       castShadows: true,
       shadowIntensity: 0.4,
     },
-    atmosphere: {
-      color: '#87ceeb',
-      highColor: '#add8e6',
-      horizonBlend: 0.05,
-      spaceColor: '#1a1a2e',
-      starIntensity: 0,
-    },
     fog: {
       color: '#e6f3ff',
-      highColor: '#cce5ff',
-      horizonBlend: 0.03,
+      highColor: '#87ceeb',
+      horizonBlend: 0.05,
       range: [2, 15],
       verticalRange: [0, 1000],
+      spaceColor: '#1a1a2e',
+      starIntensity: 0,
     },
     fogEnabled: false,
   },
@@ -67,23 +57,18 @@ export const TIME_PRESETS: Record<TimeOfDay, Omit<EnvironmentState, 'enabled' | 
     directionalLight: {
       color: '#ffffff',
       intensity: 1.0,
-      direction: [0, 80],
+      direction: [180, 80], // Sun from south, high angle
       castShadows: true,
       shadowIntensity: 0.5,
     },
-    atmosphere: {
-      color: '#87ceeb',
-      highColor: '#6bb3e0',
-      horizonBlend: 0.02,
-      spaceColor: '#0a0a1a',
-      starIntensity: 0,
-    },
     fog: {
       color: '#ffffff',
-      highColor: '#f0f8ff',
-      horizonBlend: 0.01,
+      highColor: '#87ceeb',
+      horizonBlend: 0.02,
       range: [5, 20],
       verticalRange: [0, 2000],
+      spaceColor: '#0a0a1a',
+      starIntensity: 0,
     },
     fogEnabled: false,
   },
@@ -92,23 +77,18 @@ export const TIME_PRESETS: Record<TimeOfDay, Omit<EnvironmentState, 'enabled' | 
     directionalLight: {
       color: '#ffedcc',
       intensity: 0.9,
-      direction: [300, 50],
+      direction: [240, 50], // Sun from southwest
       castShadows: true,
       shadowIntensity: 0.45,
     },
-    atmosphere: {
-      color: '#87ceeb',
-      highColor: '#98d6f0',
-      horizonBlend: 0.04,
-      spaceColor: '#0a0a1a',
-      starIntensity: 0,
-    },
     fog: {
       color: '#fff8e6',
-      highColor: '#ffedcc',
-      horizonBlend: 0.02,
+      highColor: '#87ceeb',
+      horizonBlend: 0.04,
       range: [3, 18],
       verticalRange: [0, 1500],
+      spaceColor: '#0a0a1a',
+      starIntensity: 0,
     },
     fogEnabled: false,
   },
@@ -117,41 +97,29 @@ export const TIME_PRESETS: Record<TimeOfDay, Omit<EnvironmentState, 'enabled' | 
     directionalLight: {
       color: '#ff6b35',
       intensity: 0.7,
-      direction: [280, 20],
+      direction: [280, 15], // Sun setting in west, low angle
       castShadows: true,
       shadowIntensity: 0.35,
     },
-    atmosphere: {
-      color: '#ff7f50',
-      highColor: '#ff6347',
-      horizonBlend: 0.12,
-      spaceColor: '#1a1a3e',
-      starIntensity: 0.2,
-    },
     fog: {
       color: '#ffccb3',
-      highColor: '#ff9966',
-      horizonBlend: 0.1,
+      highColor: '#ff6347',
+      horizonBlend: 0.12,
       range: [0.3, 8],
       verticalRange: [0, 400],
+      spaceColor: '#1a1a3e',
+      starIntensity: 0.3,
     },
     fogEnabled: true,
   },
   night: {
     ambientLight: { color: '#4a5568', intensity: 0.2 },
     directionalLight: {
-      color: '#c4d4e6',
+      color: '#c4d4e6', // Moonlight
       intensity: 0.3,
-      direction: [180, 60],
+      direction: [210, 60], // Moon position (default Mapbox direction)
       castShadows: true,
       shadowIntensity: 0.15,
-    },
-    atmosphere: {
-      color: '#1a1a2e',
-      highColor: '#0d0d1a',
-      horizonBlend: 0.02,
-      spaceColor: '#000010',
-      starIntensity: 1.0,
     },
     fog: {
       color: '#1a1a2e',
@@ -159,6 +127,8 @@ export const TIME_PRESETS: Record<TimeOfDay, Omit<EnvironmentState, 'enabled' | 
       horizonBlend: 0.05,
       range: [0.2, 6],
       verticalRange: [0, 300],
+      spaceColor: '#000010',
+      starIntensity: 1.0,
     },
     fogEnabled: true,
   },
@@ -172,7 +142,7 @@ const DEFAULT_STATE: EnvironmentState = {
 
 export const useEnvironmentStore = create<EnvironmentStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       ...DEFAULT_STATE,
 
       setEnabled: (enabled: boolean) => {
@@ -189,13 +159,6 @@ export const useEnvironmentStore = create<EnvironmentStore>()(
       setDirectionalLight: (light: Partial<DirectionalLight>) => {
         set((state) => ({
           directionalLight: { ...state.directionalLight, ...light },
-          timeOfDay: 'custom',
-        }));
-      },
-
-      setAtmosphere: (atmosphere: Partial<Atmosphere>) => {
-        set((state) => ({
-          atmosphere: { ...state.atmosphere, ...atmosphere },
           timeOfDay: 'custom',
         }));
       },
@@ -235,7 +198,6 @@ export const useEnvironmentStore = create<EnvironmentStore>()(
         enabled: state.enabled,
         ambientLight: state.ambientLight,
         directionalLight: state.directionalLight,
-        atmosphere: state.atmosphere,
         fog: state.fog,
         fogEnabled: state.fogEnabled,
         timeOfDay: state.timeOfDay,

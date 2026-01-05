@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiSun, FiChevronDown, FiMoon, FiCloud, FiDroplet, FiZap, FiRefreshCw } from 'react-icons/fi';
-import { useEnvironmentStore, TIME_PRESETS, useUIStore } from '../../stores';
+import { FiSun, FiChevronDown, FiCloud, FiZap, FiRefreshCw } from 'react-icons/fi';
+import { useEnvironmentStore, useUIStore } from '../../stores';
 import type { TimeOfDay } from '../../types';
 
 const TIME_OF_DAY_OPTIONS: { id: TimeOfDay; name: string; icon: string; color: string }[] = [
@@ -22,13 +22,11 @@ export const EnvironmentPanel = () => {
     timeOfDay,
     ambientLight,
     directionalLight,
-    atmosphere,
     fog,
     fogEnabled,
     setEnabled,
     setAmbientLight,
     setDirectionalLight,
-    setAtmosphere,
     setFog,
     setFogEnabled,
     applyPreset,
@@ -38,7 +36,6 @@ export const EnvironmentPanel = () => {
   const [expanded, setExpanded] = useState(true);
   const [ambientExpanded, setAmbientExpanded] = useState(false);
   const [directionalExpanded, setDirectionalExpanded] = useState(false);
-  const [atmosphereExpanded, setAtmosphereExpanded] = useState(false);
   const [fogExpanded, setFogExpanded] = useState(false);
 
   return (
@@ -240,56 +237,10 @@ export const EnvironmentPanel = () => {
                 )}
               </CollapsibleSection>
 
-              {/* Atmosphere Section */}
+              {/* Fog & Atmosphere Section (combined per Mapbox spec) */}
               <CollapsibleSection
-                title="Atmosphere"
+                title="Fog & Atmosphere"
                 icon={<FiCloud size={14} />}
-                expanded={atmosphereExpanded}
-                onToggle={() => setAtmosphereExpanded(!atmosphereExpanded)}
-                isDark={isDark}
-              >
-                <ColorControl
-                  label="Sky Color"
-                  value={atmosphere.color}
-                  onChange={(color) => setAtmosphere({ color })}
-                  isDark={isDark}
-                />
-                <ColorControl
-                  label="High Color"
-                  value={atmosphere.highColor}
-                  onChange={(highColor) => setAtmosphere({ highColor })}
-                  isDark={isDark}
-                />
-                <ColorControl
-                  label="Space Color"
-                  value={atmosphere.spaceColor}
-                  onChange={(spaceColor) => setAtmosphere({ spaceColor })}
-                  isDark={isDark}
-                />
-                <SliderControl
-                  label="Horizon Blend"
-                  value={atmosphere.horizonBlend}
-                  min={0}
-                  max={0.5}
-                  step={0.01}
-                  onChange={(horizonBlend) => setAtmosphere({ horizonBlend })}
-                  isDark={isDark}
-                />
-                <SliderControl
-                  label="Star Intensity"
-                  value={atmosphere.starIntensity}
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  onChange={(starIntensity) => setAtmosphere({ starIntensity })}
-                  isDark={isDark}
-                />
-              </CollapsibleSection>
-
-              {/* Fog Section */}
-              <CollapsibleSection
-                title="Fog"
-                icon={<FiDroplet size={14} />}
                 expanded={fogExpanded}
                 onToggle={() => setFogExpanded(!fogExpanded)}
                 isDark={isDark}
@@ -316,6 +267,10 @@ export const EnvironmentPanel = () => {
               >
                 {fogEnabled && (
                   <>
+                    {/* Fog Colors */}
+                    <div className={`text-xs font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'} mb-2`}>
+                      Fog Colors
+                    </div>
                     <ColorControl
                       label="Fog Color"
                       value={fog.color}
@@ -328,11 +283,36 @@ export const EnvironmentPanel = () => {
                       onChange={(highColor) => setFog({ highColor })}
                       isDark={isDark}
                     />
+
+                    {/* Atmosphere Colors */}
+                    <div className={`text-xs font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'} mt-3 mb-2`}>
+                      Atmosphere
+                    </div>
+                    <ColorControl
+                      label="Space Color"
+                      value={fog.spaceColor}
+                      onChange={(spaceColor) => setFog({ spaceColor })}
+                      isDark={isDark}
+                    />
+                    <SliderControl
+                      label="Star Intensity"
+                      value={fog.starIntensity}
+                      min={0}
+                      max={1}
+                      step={0.05}
+                      onChange={(starIntensity) => setFog({ starIntensity })}
+                      isDark={isDark}
+                    />
+
+                    {/* Fog Settings */}
+                    <div className={`text-xs font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'} mt-3 mb-2`}>
+                      Fog Settings
+                    </div>
                     <SliderControl
                       label="Horizon Blend"
                       value={fog.horizonBlend}
                       min={0}
-                      max={0.2}
+                      max={1}
                       step={0.01}
                       onChange={(horizonBlend) => setFog({ horizonBlend })}
                       isDark={isDark}
@@ -340,7 +320,7 @@ export const EnvironmentPanel = () => {
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       <div>
                         <label className={`text-xs ${isDark ? 'text-zinc-400' : 'text-zinc-500'} mb-1 block`}>
-                          Start
+                          Range Start
                         </label>
                         <input
                           type="number"
@@ -349,6 +329,8 @@ export const EnvironmentPanel = () => {
                             setFog({ range: [parseFloat(e.target.value) || 0, fog.range[1]] })
                           }
                           step="0.5"
+                          min="-20"
+                          max="20"
                           className={`w-full px-2 py-1 text-xs rounded font-mono ${
                             isDark
                               ? 'bg-zinc-800 text-white border-zinc-700'
@@ -358,7 +340,7 @@ export const EnvironmentPanel = () => {
                       </div>
                       <div>
                         <label className={`text-xs ${isDark ? 'text-zinc-400' : 'text-zinc-500'} mb-1 block`}>
-                          End
+                          Range End
                         </label>
                         <input
                           type="number"
@@ -367,6 +349,48 @@ export const EnvironmentPanel = () => {
                             setFog({ range: [fog.range[0], parseFloat(e.target.value) || 0] })
                           }
                           step="1"
+                          min="-20"
+                          max="20"
+                          className={`w-full px-2 py-1 text-xs rounded font-mono ${
+                            isDark
+                              ? 'bg-zinc-800 text-white border-zinc-700'
+                              : 'bg-zinc-100 text-zinc-900 border-zinc-300'
+                          } border focus:outline-none focus:ring-1 focus:ring-amber-500`}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div>
+                        <label className={`text-xs ${isDark ? 'text-zinc-400' : 'text-zinc-500'} mb-1 block`}>
+                          Vert. Start (m)
+                        </label>
+                        <input
+                          type="number"
+                          value={fog.verticalRange[0]}
+                          onChange={(e) =>
+                            setFog({ verticalRange: [parseFloat(e.target.value) || 0, fog.verticalRange[1]] })
+                          }
+                          step="50"
+                          min="0"
+                          className={`w-full px-2 py-1 text-xs rounded font-mono ${
+                            isDark
+                              ? 'bg-zinc-800 text-white border-zinc-700'
+                              : 'bg-zinc-100 text-zinc-900 border-zinc-300'
+                          } border focus:outline-none focus:ring-1 focus:ring-amber-500`}
+                        />
+                      </div>
+                      <div>
+                        <label className={`text-xs ${isDark ? 'text-zinc-400' : 'text-zinc-500'} mb-1 block`}>
+                          Vert. End (m)
+                        </label>
+                        <input
+                          type="number"
+                          value={fog.verticalRange[1]}
+                          onChange={(e) =>
+                            setFog({ verticalRange: [fog.verticalRange[0], parseFloat(e.target.value) || 0] })
+                          }
+                          step="100"
+                          min="0"
                           className={`w-full px-2 py-1 text-xs rounded font-mono ${
                             isDark
                               ? 'bg-zinc-800 text-white border-zinc-700'

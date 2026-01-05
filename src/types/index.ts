@@ -245,31 +245,29 @@ export interface ExportOptions {
 
 export interface AmbientLight {
   color: string;
-  intensity: number;
+  intensity: number; // 0-1
 }
 
 export interface DirectionalLight {
   color: string;
-  intensity: number;
-  direction: [number, number]; // [azimuth, polar] in degrees
+  intensity: number; // 0-1
+  direction: [number, number]; // [azimuth (0-360), polar (0-90)] in degrees
   castShadows: boolean;
-  shadowIntensity: number;
+  shadowIntensity: number; // 0-1
 }
 
-export interface Atmosphere {
-  color: string;
-  highColor: string;
-  horizonBlend: number;
-  spaceColor: string;
-  starIntensity: number;
-}
-
+// Fog includes atmosphere properties per Mapbox GL JS v3 spec
+// See: https://docs.mapbox.com/style-spec/reference/fog/
 export interface Fog {
-  color: string;
-  highColor: string;
-  horizonBlend: number;
-  range: [number, number]; // [start, end] in meters
-  verticalRange: [number, number];
+  // Base fog properties
+  color: string; // Default: "#ffffff"
+  highColor: string; // Color above horizon, default: "#245cdf"
+  horizonBlend: number; // 0-1, default: 0.1
+  range: [number, number]; // [start, end] between -20 and 20, default: [0.5, 10]
+  verticalRange: [number, number]; // Height range in meters, default: [0, 0]
+  // Atmosphere/space properties (part of fog in Mapbox spec)
+  spaceColor: string; // Color of space, default: "#245cdf"
+  starIntensity: number; // 0-1, default: 0
 }
 
 export type TimeOfDay = 'dawn' | 'morning' | 'noon' | 'afternoon' | 'dusk' | 'night';
@@ -278,7 +276,6 @@ export interface EnvironmentState {
   enabled: boolean;
   ambientLight: AmbientLight;
   directionalLight: DirectionalLight;
-  atmosphere: Atmosphere;
   fog: Fog;
   fogEnabled: boolean;
   timeOfDay: TimeOfDay | 'custom';
@@ -375,7 +372,6 @@ export interface EnvironmentStore extends EnvironmentState {
   setEnabled: (enabled: boolean) => void;
   setAmbientLight: (light: Partial<AmbientLight>) => void;
   setDirectionalLight: (light: Partial<DirectionalLight>) => void;
-  setAtmosphere: (atmosphere: Partial<Atmosphere>) => void;
   setFog: (fog: Partial<Fog>) => void;
   setFogEnabled: (enabled: boolean) => void;
   setTimeOfDay: (time: TimeOfDay | 'custom') => void;

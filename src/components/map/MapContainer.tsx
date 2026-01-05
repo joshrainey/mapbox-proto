@@ -233,7 +233,9 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
       }
     }, [drawingMode]);
 
-    // Apply environment settings (lighting, fog, atmosphere)
+    // Apply environment settings (lighting, fog with atmosphere)
+    // Reference: https://docs.mapbox.com/style-spec/reference/fog/
+    // Reference: https://docs.mapbox.com/style-spec/reference/light/
     useEffect(() => {
       const map = mapRef.current;
       if (!map || !map.isStyleLoaded()) return;
@@ -241,6 +243,7 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
       try {
         if (environment.enabled) {
           // Apply lights configuration using Mapbox GL v3 API
+          // Both ambient and directional lights are required for 3D lighting to work
           // Type cast needed as TypeScript definitions may not be fully up to date
           const lights = [
             {
@@ -265,7 +268,8 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
           ] as any;
           (map as any).setLights(lights);
 
-          // Apply fog settings
+          // Apply fog settings (includes atmosphere properties per Mapbox v3 spec)
+          // Fog provides: color blending, atmosphere effect, stars, and depth perception
           if (environment.fogEnabled) {
             map.setFog({
               color: environment.fog.color,
@@ -273,16 +277,18 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
               'horizon-blend': environment.fog.horizonBlend,
               range: environment.fog.range,
               'vertical-range': environment.fog.verticalRange,
+              'space-color': environment.fog.spaceColor,
+              'star-intensity': environment.fog.starIntensity,
             });
           } else {
             map.setFog(null);
           }
 
-          // Update sky layer if it exists
+          // Update sky layer if it exists (for atmosphere simulation)
           if (map.getLayer('sky')) {
-            map.setPaintProperty('sky', 'sky-atmosphere-color', environment.atmosphere.color);
-            map.setPaintProperty('sky', 'sky-atmosphere-halo-color', environment.atmosphere.highColor);
-            map.setPaintProperty('sky', 'sky-atmosphere-sun-intensity', environment.atmosphere.starIntensity * 15);
+            map.setPaintProperty('sky', 'sky-atmosphere-color', environment.fog.highColor);
+            map.setPaintProperty('sky', 'sky-atmosphere-halo-color', environment.fog.color);
+            map.setPaintProperty('sky', 'sky-atmosphere-sun-intensity', Math.max(5, 15 - environment.fog.starIntensity * 10));
           }
         } else {
           // Reset to defaults when disabled
@@ -296,7 +302,6 @@ export const MapContainer = forwardRef<HTMLDivElement, MapContainerProps>(
       environment.enabled,
       environment.ambientLight,
       environment.directionalLight,
-      environment.atmosphere,
       environment.fog,
       environment.fogEnabled,
     ]);
